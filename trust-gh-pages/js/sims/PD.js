@@ -76,15 +76,15 @@ PD.getSDWelfare = function(agents){
   return Math.pow(runningTotal/agents.length, 0.5);
 }
 
-PD.playOneGame = function(playerA, playerB){
+PD.playOneGame = function(playerA, playerB, agents){
   console.log("playOneGame");
   // Get opponents coin values
   var ACoins = playerA.getCoins();
   var BCoins = playerB.getCoins();
 
 	// Make your moves!
-	var A = playerA.play(BCoins);
-	var B = playerB.play(ACoins);
+	var A = playerA.play(BCoins, agents);
+	var B = playerB.play(ACoins, agents);
 
 	// Noise: random mistakes, flip around!
 	if(Math.random()<PD.NOISE) A = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
@@ -106,7 +106,7 @@ PD.playOneGame = function(playerA, playerB){
 
 };
 
-PD.playRepeatedGame = function(playerA, playerB, turns){
+PD.playRepeatedGame = function(playerA, playerB, turns, agents){
 	// I've never met you before, let's pretend
 	playerA.resetLogic();
 	playerB.resetLogic();
@@ -118,7 +118,7 @@ PD.playRepeatedGame = function(playerA, playerB, turns){
 		payoffs:[]
 	};
 	for(var i=0; i<turns; i++){
-		var p = PD.playOneGame(playerA, playerB);
+		var p = PD.playOneGame(playerA, playerB, agents);
 		scores.payoffs.push(p);
 		scores.totalA += p[0];
 		scores.totalB += p[1];
@@ -159,7 +159,7 @@ PD.playOneTournament = function(agents, turns){
 function Logic_tft(){
 	var self = this;
 	var otherMove = PD.COOPERATE;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		return otherMove;
 	};
 	self.remember = function(own, other){
@@ -168,10 +168,10 @@ function Logic_tft(){
 }
 
 //copykitten
-function Logic_tf2t(){
+/*function Logic_tf2t(){
 	var self = this;
 	var howManyTimesCheated = 0;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		if(howManyTimesCheated>=2){
 			return PD.CHEAT; // retaliate ONLY after two betrayals
 		}else{
@@ -185,12 +185,12 @@ function Logic_tf2t(){
 			howManyTimesCheated = 0;
 		}
 	};
-}
+}*/
 
 function Logic_grudge(){
 	var self = this;
 	var everCheatedMe = false;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		if(everCheatedMe) return PD.CHEAT;
 		return PD.COOPERATE;
 	};
@@ -201,7 +201,7 @@ function Logic_grudge(){
 
 function Logic_all_d(){
 	var self = this;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		return PD.CHEAT;
 	};
 	self.remember = function(own, other){
@@ -211,7 +211,7 @@ function Logic_all_d(){
 
 function Logic_all_c(){
 	var self = this;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		return PD.COOPERATE;
 	};
 	self.remember = function(own, other){
@@ -221,7 +221,7 @@ function Logic_all_c(){
 
 function Logic_random(){
 	var self = this;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		return (Math.random()>0.5 ? PD.COOPERATE : PD.CHEAT);
 	};
 	self.remember = function(own, other){
@@ -234,7 +234,7 @@ function Logic_random(){
 function Logic_pavlov(){
 	var self = this;
 	var myLastMove = PD.COOPERATE;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		return myLastMove;
 	};
 	self.remember = function(own, other){
@@ -254,7 +254,7 @@ function Logic_prober(){
 	var everCheatedMe = false;
 
 	var otherMove = PD.COOPERATE;
-	self.play = function(opponentCoins){
+	self.play = function(opponentCoins, agents){
 		if(moves.length>0){
 			// Testing phase
 			var move = moves.shift();
@@ -274,4 +274,16 @@ function Logic_prober(){
 		otherMove = other; // for TFT
 	};
 
+}
+
+//function Logic_robinhood(){
+function Logic_tf2t(){
+  var self = this;
+  self.play = function(opponentCoins, agents){
+    var threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
+    return ((opponentCoins > threshold) ? PD.CHEAT : PD.COOPERATE);
+  };
+  self.remember = function(own, other){
+    // nah
+  };
 }
