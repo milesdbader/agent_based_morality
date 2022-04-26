@@ -589,6 +589,9 @@ function TournamentAgent(config){
 		self.coins += payoff;
 		self.updateScore();
 	};
+  self.getCoins = function(){
+    return self.coins;
+  }
 
 	// What's the image?
 	var g = new PIXI.Container();
@@ -630,6 +633,9 @@ function TournamentAgent(config){
 	self.remember = function(own, other){
 		self.logic.remember(own, other);
 	};
+  self.getStrategy = function(){
+    return self.strategyName;
+  }
 
 	// Reset!
 	self.resetCoins = function(){
