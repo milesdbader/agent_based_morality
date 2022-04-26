@@ -65,6 +65,16 @@ PD.getAverageWelfare = function(agents){
   var totalWelfare = PD.getTotalWelfare(agents);
   return totalWelfare/(agents.length);
 }
+PD.getSDWelfare = function(agents){
+  var mean = PD.getAverageWelfare(agents);
+  console.log("mean: ", mean);
+  var runningTotal = 0;
+  for(var i=0; i<agents.length; i++){
+    runningTotal += Math.pow((agents[i].coins - mean), 2);
+    console.log(runningTotal);
+  }
+  return Math.pow(runningTotal/agents.length, 0.5);
+}
 
 PD.playOneGame = function(playerA, playerB){
   console.log("playOneGame");
@@ -139,6 +149,7 @@ PD.playOneTournament = function(agents, turns){
   console.log("AGENT2COINS: "+agents[2].coins);
   console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
   console.log("AVerage WELFARE: "+PD.getAverageWelfare(agents));
+  console.log("SD WELFARE: "+PD.getSDWelfare(agents));
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
