@@ -205,7 +205,7 @@ function Tournament(config){
 		connection.highlight();
 
 		// Actually PLAY the game -- HACK: HARD-CODE 10 ROUNDS
-		var scores = PD.playRepeatedGame(match[0], match[1], 10);
+		var scores = PD.playRepeatedGame(match[0], match[1], 10, null);
 
 		// Return ALL this data...
 		return {
@@ -627,8 +627,8 @@ function TournamentAgent(config){
 	// What's the play logic?
 	var LogicClass = window["Logic_"+self.strategyName];
 	self.logic = new LogicClass();
-	self.play = function(opponentCoins){
-		return self.logic.play(opponentCoins);
+	self.play = function(opponentCoins, agents){
+		return self.logic.play(opponentCoins, agents);
 	};
 	self.remember = function(own, other){
 		self.logic.remember(own, other);
