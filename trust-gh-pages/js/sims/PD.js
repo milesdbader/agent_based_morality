@@ -55,9 +55,13 @@ PD.getPayoffs = function(move1, move2){
 
 PD.playOneGame = function(playerA, playerB){
   console.log("playOneGame");
+  // Get opponents coin values
+  var ACoins = playerA.getCoins();
+  var BCoins = playerB.getCoins();
+
 	// Make your moves!
-	var A = playerA.play();
-	var B = playerB.play();
+	var A = playerA.play(BCoins);
+	var B = playerB.play(ACoins);
 
 	// Noise: random mistakes, flip around!
 	if(Math.random()<PD.NOISE) A = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
@@ -136,7 +140,7 @@ PD.playOneTournament = function(agents, turns){
 function Logic_tft(){
 	var self = this;
 	var otherMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		return otherMove;
 	};
 	self.remember = function(own, other){
@@ -148,7 +152,7 @@ function Logic_tft(){
 function Logic_tf2t(){
 	var self = this;
 	var howManyTimesCheated = 0;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		if(howManyTimesCheated>=2){
 			return PD.CHEAT; // retaliate ONLY after two betrayals
 		}else{
@@ -167,7 +171,7 @@ function Logic_tf2t(){
 function Logic_grudge(){
 	var self = this;
 	var everCheatedMe = false;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		if(everCheatedMe) return PD.CHEAT;
 		return PD.COOPERATE;
 	};
@@ -178,7 +182,7 @@ function Logic_grudge(){
 
 function Logic_all_d(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		return PD.CHEAT;
 	};
 	self.remember = function(own, other){
@@ -188,7 +192,7 @@ function Logic_all_d(){
 
 function Logic_all_c(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		return PD.COOPERATE;
 	};
 	self.remember = function(own, other){
@@ -198,7 +202,7 @@ function Logic_all_c(){
 
 function Logic_random(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		return (Math.random()>0.5 ? PD.COOPERATE : PD.CHEAT);
 	};
 	self.remember = function(own, other){
@@ -211,7 +215,7 @@ function Logic_random(){
 function Logic_pavlov(){
 	var self = this;
 	var myLastMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		return myLastMove;
 	};
 	self.remember = function(own, other){
@@ -231,7 +235,7 @@ function Logic_prober(){
 	var everCheatedMe = false;
 
 	var otherMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins){
 		if(moves.length>0){
 			// Testing phase
 			var move = moves.shift();

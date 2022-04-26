@@ -627,8 +627,8 @@ function TournamentAgent(config){
 	// What's the play logic?
 	var LogicClass = window["Logic_"+self.strategyName];
 	self.logic = new LogicClass();
-	self.play = function(){
-		return self.logic.play();
+	self.play = function(opponentCoins){
+		return self.logic.play(opponentCoins);
 	};
 	self.remember = function(own, other){
 		self.logic.remember(own, other);
