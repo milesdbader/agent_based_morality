@@ -53,6 +53,19 @@ PD.getPayoffs = function(move1, move2){
 	if(move1==PD.COOPERATE && move2==PD.COOPERATE) return [payoffs.R, payoffs.R]; // both rewarded
 };
 
+// Calculate the welfare in the system (total coins)
+PD.getTotalWelfare = function(agents){
+  var welfare = 0;
+  for(var i=0; i<agents.length; i++){
+    welfare += agents[i].coins;
+  }
+  return welfare;
+}
+PD.getAverageWelfare = function(agents){
+  var totalWelfare = PD.getTotalWelfare(agents);
+  return totalWelfare/(agents.length);
+}
+
 PD.playOneGame = function(playerA, playerB){
   console.log("playOneGame");
   // Get opponents coin values
@@ -124,13 +137,8 @@ PD.playOneTournament = function(agents, turns){
   console.log("AGENT0COINS: "+agents[0].coins);
   console.log("AGENT1COINS: "+agents[1].coins);
   console.log("AGENT2COINS: "+agents[2].coins);
-  console.log("AGENT3COINS: "+agents[3].coins);
-  console.log("AGENT4COINS: "+agents[4].coins);
-  console.log("AGENT5COINS: "+agents[5].coins);
-  console.log("AGENT6COINS: "+agents[6].coins);
-  console.log("AGENT7COINS: "+agents[7].coins);
-  console.log("AGENT8COINS: "+agents[8].coins);
-  console.log("AGENT9COINS: "+agents[9].coins);
+  console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
+  console.log("AVerage WELFARE: "+PD.getAverageWelfare(agents));
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
