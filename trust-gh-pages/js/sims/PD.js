@@ -95,6 +95,25 @@ PD.playOneGame = function(playerA, playerB, agents){
 	playerA.remember(A, B);
 	playerB.remember(B, A);
 
+  // find poorest agents
+  var poor_agents = [];
+  for(var i = 0; i < agents.length; i++) { poor_agents.push(agent[i]); }
+  poor_agents.sort((a, b) => {a.coins - b.coins})
+
+  // IMPORTANT: on below lines, "tf2t" will need to change to match whatever robinhood is id'd as
+  if(playerA.getStrategy == "tf2t" && payoffs[0] == PD.PAYOFFS.T) { // if A succeeded as robinhood
+    for(var i = 0; i < PD.PAYOFFS.T; i++){
+      poor_agents[i].addPayoff(1);
+    }
+    payoffs[0] = 0;
+  }
+  if(playerB.getStrategy == "tf2t" && payoffs[1] == PD.PAYOFFS.T) { // if B succeeded as robinhood
+    for(var i = 0; i < PD.PAYOFFS.T; i++){
+      poor_agents[i].addPayoff(1);
+    }
+    payoffs[1] = 0;
+  }
+
 	// Add to scores (only in tournament?)
 	playerA.addPayoff(payoffs[0]);
 	playerB.addPayoff(payoffs[1]);
