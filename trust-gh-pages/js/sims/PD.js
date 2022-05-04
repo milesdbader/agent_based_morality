@@ -75,7 +75,7 @@ PD.getSDWelfare = function(agents){
 }
 
 PD.playOneGame = function(playerA, playerB, agents){
-  console.log("playOneGame");
+  // console.log("playOneGame");
   // Get opponents coin values
   var ACoins = playerA.getCoins();
   var BCoins = playerB.getCoins();
@@ -95,23 +95,37 @@ PD.playOneGame = function(playerA, playerB, agents){
 	playerA.remember(A, B);
 	playerB.remember(B, A);
 
-  // find poorest agents
-  var poor_agents = [];
-  for(var i = 0; i < agents.length; i++) { poor_agents.push(agents[i]); }
-  poor_agents.sort((a, b) => {a.coins - b.coins})
-
+  // wealth redistribution for RH character
   // IMPORTANT: on below lines, "tf2t" will need to change to match whatever robinhood is id'd as
-  if(playerA.getStrategy == "tf2t" && payoffs[0] == PD.PAYOFFS.T) { // if A succeeded as robinhood
-    for(var i = 0; i < PD.PAYOFFS.T; i++){
-      poor_agents[i].addPayoff(1);
+  if(playerA.getStrategy() == "tf2t" || playerB.getStrategy() == "tf2t"){ // if someone is robinhood
+    // console.log("here comes robinhood!");
+
+    // find poorest agents
+    var poor_agents = [];
+    for(var i = agents.length - 1; i >= 0; i--) { poor_agents.push(agents[i]); }
+    poor_agents = poor_agents.sort((a, b) => {return (a.coins - b.coins)});
+    // // For testing:
+    // console.log(`The poorest: (1) Player ${agents.findIndex((x) => x == poor_agents[0])}
+    //   with $${poor_agents[0].coins} \n (2) Player ${agents.findIndex((x) => x == poor_agents[1])}
+    //   with $${poor_agents[1].coins} \n (3) Player ${agents.findIndex((x) => x == poor_agents[2])}
+    //   with $${poor_agents[2].coins}`);
+
+    // console.log(`pA${playerA.getStrategy()}:$${playerA.coins}:${A};
+    //   \npB${playerB.getStrategy()}:$${playerB.coins}:${B};
+    //   \nThresh: ${PD.getAverageWelfare(agents) + PD.getSDWelfare(agents)}`);
+
+    if(playerA.getStrategy() == "tf2t" && payoffs[0] == PD.PAYOFFS.T) { // if A succeeded as robinhood
+      for(var i = 0; i < PD.PAYOFFS.T; i++){
+        poor_agents[i].addPayoff(1);
+      }
+      payoffs[0] = 0;
     }
-    payoffs[0] = 0;
-  }
-  if(playerB.getStrategy == "tf2t" && payoffs[1] == PD.PAYOFFS.T) { // if B succeeded as robinhood
-    for(var i = 0; i < PD.PAYOFFS.T; i++){
-      poor_agents[i].addPayoff(1);
+    if(playerB.getStrategy() == "tf2t" && payoffs[1] == PD.PAYOFFS.T) { // if B succeeded as robinhood
+      for(var i = 0; i < PD.PAYOFFS.T; i++){
+        poor_agents[i].addPayoff(1);
+      }
+      payoffs[1] = 0;
     }
-    payoffs[1] = 0;
   }
 
 	// Add to scores (only in tournament?)
