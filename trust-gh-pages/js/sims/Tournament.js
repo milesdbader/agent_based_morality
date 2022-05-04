@@ -626,7 +626,9 @@ function TournamentAgent(config){
 
 	// What's the play logic?
 	var LogicClass = window["Logic_"+self.strategyName];
-	self.logic = new LogicClass();
+	self.logicCount = 0;
+	self.logicSet = Array(25).fill(new LogicClass());
+	self.logic = logicSet[0];
 	self.play = function(opponentCoins, agents){
 		return self.logic.play(opponentCoins, agents);
 	};
@@ -643,7 +645,10 @@ function TournamentAgent(config){
 		self.updateScore();
 	}
 	self.resetLogic = function(){
-		self.logic = new LogicClass(); // reset logic
+		self.logicCount = 0;
+		self.logicSet = Array(25).fill(new LogicClass());
+		self.logic = logicSet[0];
+		// reset logic
 	};
 
 	// Tween angle...
