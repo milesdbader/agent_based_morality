@@ -168,12 +168,25 @@ PD.playOneTournament = function(agents, turns){
 	}
 
 	// Round robin!
+	var counter = 0;
+
+	while(counter > 10){
+		for(var i=0; i<agents.length; i++){
+			var playerA = agents[i];
+			for(var j=i+1; j<agents.length; j++){
+				var playerB = agents[j];
+				playerA.logicCount = j;
+				playerB.logicCount = i;
+				playerA.logic = playerA.logicSet[j];
+				playerB.logic = playerB.logicSet[i];
+				PD.playOneGame(playerA, playerB, turns, agents);
+			}	
+		}
+		counter += 1
+	}
 	for(var i=0; i<agents.length; i++){
-		var playerA = agents[i];
-		for(var j=i+1; j<agents.length; j++){
-			var playerB = agents[j];
-			PD.playRepeatedGame(playerA, playerB, turns, agents);
-		}	
+			var playerA = agents[i];
+			playerA.resetLogic();
 	}
   console.log("AGENT0COINS: "+agents[0].coins);
   console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
