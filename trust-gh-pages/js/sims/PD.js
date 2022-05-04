@@ -97,7 +97,7 @@ PD.playOneGame = function(playerA, playerB, agents){
 
   // find poorest agents
   var poor_agents = [];
-  for(var i = 0; i < agents.length; i++) { poor_agents.push(agent[i]); }
+  for(var i = 0; i < agents.length; i++) { poor_agents.push(agents[i]); }
   poor_agents.sort((a, b) => {a.coins - b.coins})
 
   // IMPORTANT: on below lines, "tf2t" will need to change to match whatever robinhood is id'd as
