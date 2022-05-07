@@ -69,6 +69,21 @@ PD.playOneGame = function(playerA, playerB){
 	// Remember own & other's moves (or mistakes)
 	playerA.remember(A, B);
 	playerB.remember(B, A);
+	
+  	var repChangeOnCoop = 1
+  	var repChangeOnCheat = -2
+
+  	// Change Reputation - we can change these values as we wish
+  	if(B == PD.CHEAT){
+  		playerB.changeRep(repChangeOnCheat);
+  	} else if (B == PD.COOPERATE){
+  		playerB.changeRep(repChangeOnCoop);
+  	}
+ 	if(A == PD.CHEAT){
+  		playerA.changeRep(repChangeOnCheat);
+  	} else if (A == PD.COOPERATE){
+  		playerA.changeRep(repChangeOnCoop);
+  	}
 
 	// Add to scores (only in tournament?)
 	playerA.addPayoff(payoffs[0]);
@@ -90,6 +105,14 @@ PD.playRepeatedGame = function(playerA, playerB, turns){
 		totalB:0,
 		payoffs:[]
 	};
+	
+	//Example code for a skip game based on reputation function
+	if(Math.random() > playerA.repErrorRate && playerA.getReputation() > playerA.repThreshold && playerB.getReputation() < playerA.repThreshold){
+		return scores;
+	} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
+		return scores;
+	}
+	
 	for(var i=0; i<turns; i++){
 		var p = PD.playOneGame(playerA, playerB);
 		scores.payoffs.push(p);
