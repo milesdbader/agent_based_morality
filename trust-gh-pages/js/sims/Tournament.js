@@ -593,6 +593,15 @@ function TournamentAgent(config){
     return self.coins;
   }
 
+	// Reputation
+	self.reputation = 0;
+	self.changeRep = function(change){
+		self.reputation += change;
+	};
+  	self.getReputation = function(){
+    		return self.reputation;
+  	}
+	
 	// What's the image?
 	var g = new PIXI.Container();
 	self.graphics = g;
