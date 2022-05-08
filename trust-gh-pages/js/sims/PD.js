@@ -106,14 +106,13 @@ PD.playRepeatedGame = function(playerA, playerB, turns){
 		payoffs:[]
 	};
 	
-	//Example code for a skip game based on reputation function
-	if(Math.random() > playerA.repErrorRate && playerA.getReputation() > playerA.repThreshold && playerB.getReputation() < playerA.repThreshold){
-		return scores;
-	} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
-		return scores;
-	}
-	
 	for(var i=0; i<turns; i++){
+		//Example code for a skip game based on reputation function
+		if(Math.random() > playerA.repErrorRate && playerA.getReputation() > playerA.repThreshold && playerB.getReputation() < playerA.repThreshold){
+			continue;
+		} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
+			continue;
+		}
 		var p = PD.playOneGame(playerA, playerB);
 		scores.payoffs.push(p);
 		scores.totalA += p[0];
