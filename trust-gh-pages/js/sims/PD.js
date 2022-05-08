@@ -96,8 +96,8 @@ PD.playOneGame = function(playerA, playerB, agents){
 	playerB.remember(B, A);
 
   // wealth redistribution for RH character
-  // IMPORTANT: on below lines, "tf2t" will need to change to match whatever robinhood is id'd as
-  if(playerA.getStrategy() == "tf2t" || playerB.getStrategy() == "tf2t"){ // if someone is robinhood
+  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
+  if(playerA.getStrategy() == "robinhood2" || playerB.getStrategy() == "robinhood2"){ // if someone is robinhood
     // console.log("here comes robinhood!");
 
     // find poorest agents
@@ -113,14 +113,14 @@ PD.playOneGame = function(playerA, playerB, agents){
     // console.log(`pA${playerA.getStrategy()}:$${playerA.coins}:${A};
     //   \npB${playerB.getStrategy()}:$${playerB.coins}:${B};
     //   \nThresh: ${PD.getAverageWelfare(agents) + PD.getSDWelfare(agents)}`);
-
-    if(playerA.getStrategy() == "tf2t" && payoffs[0] == PD.PAYOFFS.T) { // if A succeeded as robinhood
+    var poorThreshold = PD.getAverageWelfare(agents) - PD.getSDWelfare(agents); // RH won't redistribute wealth if below this
+    if(playerA.getStrategy() == "robinhood2" && payoffs[0] == PD.PAYOFFS.T && ACoins > poorThreshold) { // if A succeeded as robinhood
       for(var i = 0; i < PD.PAYOFFS.T; i++){
         poor_agents[i].addPayoff(1);
       }
       payoffs[0] = 0;
     }
-    if(playerB.getStrategy() == "tf2t" && payoffs[1] == PD.PAYOFFS.T) { // if B succeeded as robinhood
+    if(playerB.getStrategy() == "robinhood2" && payoffs[1] == PD.PAYOFFS.T && BCoins > poorThreshold) { // if B succeeded as robinhood
       for(var i = 0; i < PD.PAYOFFS.T; i++){
         poor_agents[i].addPayoff(1);
       }
@@ -197,7 +197,7 @@ function Logic_tft(){
 }
 
 //copykitten
-/*function Logic_tf2t(){
+function Logic_tf2t(){
 	var self = this;
 	var howManyTimesCheated = 0;
 	self.play = function(opponentCoins, agents){
@@ -214,7 +214,7 @@ function Logic_tft(){
 			howManyTimesCheated = 0;
 		}
 	};
-}*/
+}
 
 function Logic_grudge(){
 	var self = this;
@@ -305,8 +305,8 @@ function Logic_prober(){
 
 }
 
-//function Logic_robinhood(){
-function Logic_tf2t(){
+// ORIGINAL RH LOGIC (not hooked up to any current player)
+function Logic_robinhood(){
   var self = this;
   self.play = function(opponentCoins, agents){
     var threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
@@ -317,9 +317,10 @@ function Logic_tf2t(){
   };
 }
 
+// IMPROVED RH LOGIC (not hooked up to any current player)
 // plays like tf2t, except always cheats the rich.
-// after cheating someone, wealth is redistributed among the poorest
-function Logic_robinhood(){
+// after cheating someone, wealth is redistributed among the poorest (unless RH is critically poor)
+function Logic_robinhood2(){
   var self = this;
 
   var firstRound = true;
