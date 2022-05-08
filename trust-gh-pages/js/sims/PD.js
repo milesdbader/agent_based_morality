@@ -316,3 +316,38 @@ function Logic_tf2t(){
     // nah
   };
 }
+
+// plays like tf2t, except always cheats the rich.
+// after cheating someone, wealth is redistributed among the poorest
+function Logic_robinhood(){
+  var self = this;
+
+  var firstRound = true;
+  var threshold = 0;
+  var oppIsRich = false;
+  var howManyTimesCheated = 0;
+
+  self.play = function(opponentCoins, agents){
+    if(firstRound){
+      threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
+      oppIsRich = opponentCoins > threshold;
+      firstRound = false;
+    }
+
+    if(oppIsRich) { return PD.CHEAT; }
+
+    // tf2t logic
+    if(howManyTimesCheated>=2){
+      return PD.CHEAT; // retaliate ONLY after two betrayals
+    }else{
+      return PD.COOPERATE;
+    }
+  };
+  self.remember = function(own, other){
+    if(other==PD.CHEAT){
+      howManyTimesCheated++;
+    }else{
+      howManyTimesCheated = 0;
+    }
+  };
+}
