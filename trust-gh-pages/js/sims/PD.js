@@ -113,7 +113,7 @@ PD.playRepeatedGame = function(playerA, playerB, turns){
 		} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
 			continue;
 		}
-		var p = PD.playOneGame(playerA, playerB);
+		var p = PD.playOneGame(playerA, playerB, agents);
 		scores.payoffs.push(p);
 		scores.totalA += p[0];
 		scores.totalB += p[1];
