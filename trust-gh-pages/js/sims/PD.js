@@ -175,10 +175,10 @@ PD.playOneTournament = function(agents, turns){
 			PD.playRepeatedGame(playerA, playerB, turns, agents);
 		}	
 	}
-  console.log("AGENT0COINS: "+agents[0].coins);
-  console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
-  console.log("AVerage WELFARE: "+PD.getAverageWelfare(agents));
-  console.log("SD WELFARE: "+PD.getSDWelfare(agents));
+  // console.log("AGENT0COINS: "+agents[0].coins);
+  // console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
+  // console.log("Average WELFARE: "+PD.getAverageWelfare(agents));
+  // console.log("SD WELFARE: "+PD.getSDWelfare(agents));
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
