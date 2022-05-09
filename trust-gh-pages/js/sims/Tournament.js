@@ -598,11 +598,11 @@ function TournamentAgent(config){
 	self.changeRep = function(change){
 		self.reputation += change;
 	};
-  	self.getReputation = function(){
-    		return self.reputation;
-  	};
-  	//We can make this into if statements based on if the player is an AI or not
-  	self.repErrorRate = 0.05
+	self.getReputation = function(){
+  		return self.reputation;
+	};
+	//We can make this into if statements based on if the player is an AI or not
+	self.repErrorRate = 0.05
 	self.repThreshold = -2
 
 	// What's the image?

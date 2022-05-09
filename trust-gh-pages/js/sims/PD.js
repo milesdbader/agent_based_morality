@@ -95,20 +95,20 @@ PD.playOneGame = function(playerA, playerB, agents){
 	playerA.remember(A, B);
 	playerB.remember(B, A);
 	
-  	var repChangeOnCoop = 1
-  	var repChangeOnCheat = -2
+	var repChangeOnCoop = 1
+	var repChangeOnCheat = -2
 
-  	// Change Reputation - we can change these values as we wish
-  	if(B == PD.CHEAT){
-  		playerB.changeRep(repChangeOnCheat);
-  	} else if (B == PD.COOPERATE){
-  		playerB.changeRep(repChangeOnCoop);
-  	}
- 	if(A == PD.CHEAT){
-  		playerA.changeRep(repChangeOnCheat);
-  	} else if (A == PD.COOPERATE){
-  		playerA.changeRep(repChangeOnCoop);
-  	}
+	// Change Reputation - we can change these values as we wish
+	if(B == PD.CHEAT){
+		playerB.changeRep(repChangeOnCheat);
+	} else if (B == PD.COOPERATE){
+		playerB.changeRep(repChangeOnCoop);
+	}
+	  if(A == PD.CHEAT){
+		playerA.changeRep(repChangeOnCheat);
+	} else if (A == PD.COOPERATE){
+		playerA.changeRep(repChangeOnCoop);
+	}
 
   // wealth redistribution for RH character
   // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
