@@ -94,6 +94,21 @@ PD.playOneGame = function(playerA, playerB, agents){
 	// Remember own & other's moves (or mistakes)
 	playerA.remember(A, B);
 	playerB.remember(B, A);
+	
+  	var repChangeOnCoop = 1
+  	var repChangeOnCheat = -2
+
+  	// Change Reputation - we can change these values as we wish
+  	if(B == PD.CHEAT){
+  		playerB.changeRep(repChangeOnCheat);
+  	} else if (B == PD.COOPERATE){
+  		playerB.changeRep(repChangeOnCoop);
+  	}
+ 	if(A == PD.CHEAT){
+  		playerA.changeRep(repChangeOnCheat);
+  	} else if (A == PD.COOPERATE){
+  		playerA.changeRep(repChangeOnCoop);
+  	}
 
   // wealth redistribution for RH character
   // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
@@ -148,7 +163,17 @@ PD.playRepeatedGame = function(playerA, playerB, turns, agents){
 		totalB:0,
 		payoffs:[]
 	};
+	
 	for(var i=0; i<turns; i++){
+
+		//Example code for a skip game based on reputation function
+    /*
+		if(Math.random() > playerA.repErrorRate && playerA.getReputation() > playerA.repThreshold && playerB.getReputation() < playerA.repThreshold){
+			continue;
+		} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
+			continue;
+		} */
+
 		var p = PD.playOneGame(playerA, playerB, agents);
 		scores.payoffs.push(p);
 		scores.totalA += p[0];
