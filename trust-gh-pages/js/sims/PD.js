@@ -143,6 +143,10 @@ PD.playOneGame = function(playerA, playerB, agents){
     }
   }
 
+  // AI players are immune to negative punishment
+  if(A.isAI && payoffs[0] < 0) payoffs[0] = 0;
+  if(B.isAI && payoffs[1] < 0) payoffs[1] = 0;
+
 	// Add to scores (only in tournament?)
 	playerA.addPayoff(payoffs[0]);
 	playerB.addPayoff(payoffs[1]);
