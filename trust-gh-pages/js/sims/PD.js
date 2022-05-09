@@ -53,11 +53,36 @@ PD.getPayoffs = function(move1, move2){
 	if(move1==PD.COOPERATE && move2==PD.COOPERATE) return [payoffs.R, payoffs.R]; // both rewarded
 };
 
-PD.playOneGame = function(playerA, playerB){
-  console.log("playOneGame");
+// Calculate the welfare in the system (total coins)
+PD.getTotalWelfare = function(agents){
+  var welfare = 0;
+  for(var i=0; i<agents.length; i++){
+    welfare += agents[i].coins;
+  }
+  return welfare;
+}
+PD.getAverageWelfare = function(agents){
+  var totalWelfare = PD.getTotalWelfare(agents);
+  return totalWelfare/(agents.length);
+}
+PD.getSDWelfare = function(agents){
+  var mean = PD.getAverageWelfare(agents);
+  var runningTotal = 0;
+  for(var i=0; i<agents.length; i++){
+    runningTotal += Math.pow((agents[i].coins - mean), 2);
+  }
+  return Math.pow(runningTotal/agents.length, 0.5);
+}
+
+PD.playOneGame = function(playerA, playerB, agents){
+  // console.log("playOneGame");
+  // Get opponents coin values
+  var ACoins = playerA.getCoins();
+  var BCoins = playerB.getCoins();
+
 	// Make your moves!
-	var A = playerA.play();
-	var B = playerB.play();
+	var A = playerA.play(BCoins, agents);
+	var B = playerB.play(ACoins, agents);
 
 	// Noise: random mistakes, flip around!
 	if(Math.random()<PD.NOISE) A = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
@@ -85,6 +110,39 @@ PD.playOneGame = function(playerA, playerB){
   		playerA.changeRep(repChangeOnCoop);
   	}
 
+  // wealth redistribution for RH character
+  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
+  if(playerA.getStrategy() == "robinhood2" || playerB.getStrategy() == "robinhood2"){ // if someone is robinhood
+    // console.log("here comes robinhood!");
+
+    // find poorest agents
+    var poor_agents = [];
+    for(var i = agents.length - 1; i >= 0; i--) { poor_agents.push(agents[i]); }
+    poor_agents = poor_agents.sort((a, b) => {return (a.coins - b.coins)});
+    // // For testing:
+    // console.log(`The poorest: (1) Player ${agents.findIndex((x) => x == poor_agents[0])}
+    //   with $${poor_agents[0].coins} \n (2) Player ${agents.findIndex((x) => x == poor_agents[1])}
+    //   with $${poor_agents[1].coins} \n (3) Player ${agents.findIndex((x) => x == poor_agents[2])}
+    //   with $${poor_agents[2].coins}`);
+
+    // console.log(`pA${playerA.getStrategy()}:$${playerA.coins}:${A};
+    //   \npB${playerB.getStrategy()}:$${playerB.coins}:${B};
+    //   \nThresh: ${PD.getAverageWelfare(agents) + PD.getSDWelfare(agents)}`);
+    var poorThreshold = PD.getAverageWelfare(agents) - PD.getSDWelfare(agents); // RH won't redistribute wealth if below this
+    if(playerA.getStrategy() == "robinhood2" && payoffs[0] == PD.PAYOFFS.T && ACoins > poorThreshold) { // if A succeeded as robinhood
+      for(var i = 0; i < PD.PAYOFFS.T; i++){
+        poor_agents[i].addPayoff(1);
+      }
+      payoffs[0] = 0;
+    }
+    if(playerB.getStrategy() == "robinhood2" && payoffs[1] == PD.PAYOFFS.T && BCoins > poorThreshold) { // if B succeeded as robinhood
+      for(var i = 0; i < PD.PAYOFFS.T; i++){
+        poor_agents[i].addPayoff(1);
+      }
+      payoffs[1] = 0;
+    }
+  }
+
 	// Add to scores (only in tournament?)
 	playerA.addPayoff(payoffs[0]);
 	playerB.addPayoff(payoffs[1]);
@@ -94,7 +152,7 @@ PD.playOneGame = function(playerA, playerB){
 
 };
 
-PD.playRepeatedGame = function(playerA, playerB, turns){
+PD.playRepeatedGame = function(playerA, playerB, turns, agents){
 	// I've never met you before, let's pretend
 	playerA.resetLogic();
 	playerB.resetLogic();
@@ -107,12 +165,15 @@ PD.playRepeatedGame = function(playerA, playerB, turns){
 	};
 	
 	for(var i=0; i<turns; i++){
+
 		//Example code for a skip game based on reputation function
+    /*
 		if(Math.random() > playerA.repErrorRate && playerA.getReputation() > playerA.repThreshold && playerB.getReputation() < playerA.repThreshold){
 			continue;
 		} else if(Math.random() > playerB.repErrorRate && playerA.getReputation() < playerB.repThreshold && playerB.getReputation() > playerB.repThreshold){
 			continue;
-		}
+		} */
+
 		var p = PD.playOneGame(playerA, playerB, agents);
 		scores.payoffs.push(p);
 		scores.totalA += p[0];
@@ -136,19 +197,13 @@ PD.playOneTournament = function(agents, turns){
 		var playerA = agents[i];
 		for(var j=i+1; j<agents.length; j++){
 			var playerB = agents[j];
-			PD.playRepeatedGame(playerA, playerB, turns);
+			PD.playRepeatedGame(playerA, playerB, turns, agents);
 		}	
 	}
-  console.log("AGENT0COINS: "+agents[0].coins);
-  console.log("AGENT1COINS: "+agents[1].coins);
-  console.log("AGENT2COINS: "+agents[2].coins);
-  console.log("AGENT3COINS: "+agents[3].coins);
-  console.log("AGENT4COINS: "+agents[4].coins);
-  console.log("AGENT5COINS: "+agents[5].coins);
-  console.log("AGENT6COINS: "+agents[6].coins);
-  console.log("AGENT7COINS: "+agents[7].coins);
-  console.log("AGENT8COINS: "+agents[8].coins);
-  console.log("AGENT9COINS: "+agents[9].coins);
+  // console.log("AGENT0COINS: "+agents[0].coins);
+  // console.log("TOTAL WELFARE: "+PD.getTotalWelfare(agents));
+  // console.log("Average WELFARE: "+PD.getAverageWelfare(agents));
+  // console.log("SD WELFARE: "+PD.getSDWelfare(agents));
 }
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -158,7 +213,7 @@ PD.playOneTournament = function(agents, turns){
 function Logic_tft(){
 	var self = this;
 	var otherMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		return otherMove;
 	};
 	self.remember = function(own, other){
@@ -170,7 +225,7 @@ function Logic_tft(){
 function Logic_tf2t(){
 	var self = this;
 	var howManyTimesCheated = 0;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		if(howManyTimesCheated>=2){
 			return PD.CHEAT; // retaliate ONLY after two betrayals
 		}else{
@@ -189,7 +244,7 @@ function Logic_tf2t(){
 function Logic_grudge(){
 	var self = this;
 	var everCheatedMe = false;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		if(everCheatedMe) return PD.CHEAT;
 		return PD.COOPERATE;
 	};
@@ -200,7 +255,7 @@ function Logic_grudge(){
 
 function Logic_all_d(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		return PD.CHEAT;
 	};
 	self.remember = function(own, other){
@@ -210,7 +265,7 @@ function Logic_all_d(){
 
 function Logic_all_c(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		return PD.COOPERATE;
 	};
 	self.remember = function(own, other){
@@ -220,7 +275,7 @@ function Logic_all_c(){
 
 function Logic_random(){
 	var self = this;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		return (Math.random()>0.5 ? PD.COOPERATE : PD.CHEAT);
 	};
 	self.remember = function(own, other){
@@ -233,7 +288,7 @@ function Logic_random(){
 function Logic_pavlov(){
 	var self = this;
 	var myLastMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		return myLastMove;
 	};
 	self.remember = function(own, other){
@@ -253,7 +308,7 @@ function Logic_prober(){
 	var everCheatedMe = false;
 
 	var otherMove = PD.COOPERATE;
-	self.play = function(){
+	self.play = function(opponentCoins, agents){
 		if(moves.length>0){
 			// Testing phase
 			var move = moves.shift();
@@ -273,4 +328,52 @@ function Logic_prober(){
 		otherMove = other; // for TFT
 	};
 
+}
+
+// ORIGINAL RH LOGIC (not hooked up to any current player)
+function Logic_robinhood(){
+  var self = this;
+  self.play = function(opponentCoins, agents){
+    var threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
+    return ((opponentCoins > threshold) ? PD.CHEAT : PD.COOPERATE);
+  };
+  self.remember = function(own, other){
+    // nah
+  };
+}
+
+// IMPROVED RH LOGIC (not hooked up to any current player)
+// plays like tf2t, except always cheats the rich.
+// after cheating someone, wealth is redistributed among the poorest (unless RH is critically poor)
+function Logic_robinhood2(){
+  var self = this;
+
+  var firstRound = true;
+  var threshold = 0;
+  var oppIsRich = false;
+  var howManyTimesCheated = 0;
+
+  self.play = function(opponentCoins, agents){
+    if(firstRound){
+      threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
+      oppIsRich = opponentCoins > threshold;
+      firstRound = false;
+    }
+
+    if(oppIsRich) { return PD.CHEAT; }
+
+    // tf2t logic
+    if(howManyTimesCheated>=2){
+      return PD.CHEAT; // retaliate ONLY after two betrayals
+    }else{
+      return PD.COOPERATE;
+    }
+  };
+  self.remember = function(own, other){
+    if(other==PD.CHEAT){
+      howManyTimesCheated++;
+    }else{
+      howManyTimesCheated = 0;
+    }
+  };
 }
