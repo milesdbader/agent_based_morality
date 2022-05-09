@@ -205,7 +205,7 @@ function Tournament(config){
 		connection.highlight();
 
 		// Actually PLAY the game -- HACK: HARD-CODE 10 ROUNDS
-		var scores = PD.playRepeatedGame(match[0], match[1], 10);
+		var scores = PD.playRepeatedGame(match[0], match[1], 10, null);
 
 		// Return ALL this data...
 		return {
@@ -589,6 +589,9 @@ function TournamentAgent(config){
 		self.coins += payoff;
 		self.updateScore();
 	};
+  self.getCoins = function(){
+    return self.coins;
+  }
 	
 	// Reputation
 	self.reputation = 0;
@@ -636,12 +639,15 @@ function TournamentAgent(config){
 	// What's the play logic?
 	var LogicClass = window["Logic_"+self.strategyName];
 	self.logic = new LogicClass();
-	self.play = function(){
-		return self.logic.play();
+	self.play = function(opponentCoins, agents){
+		return self.logic.play(opponentCoins, agents);
 	};
 	self.remember = function(own, other){
 		self.logic.remember(own, other);
 	};
+  self.getStrategy = function(){
+    return self.strategyName;
+  }
 
 	// Reset!
 	self.resetCoins = function(){
