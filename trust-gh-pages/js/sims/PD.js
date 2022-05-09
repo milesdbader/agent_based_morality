@@ -361,7 +361,7 @@ function Logic_prober(){
 			if(everCheatedMe){
 				retObj.move = otherMove; // TFT
 			}else{
-				retObj.move PD.CHEAT; // Always Cheat
+				retObj.move = PD.CHEAT; // Always Cheat
 			}
 		}
     return retObj;
