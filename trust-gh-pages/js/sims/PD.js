@@ -111,7 +111,7 @@ PD.playOneGame = function(playerA, playerB, agents){
 	}
 
   // wealth redistribution for RH character
-  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
+  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood2 is id'd as
   if(playerA.getStrategy() == "robinhood2" || playerB.getStrategy() == "robinhood2"){ // if someone is robinhood
     // console.log("here comes robinhood!");
 
