@@ -85,8 +85,8 @@ PD.playOneGame = function(playerA, playerB, agents){
 	var B = playerB.play(ACoins, agents);
 
 	// Noise: random mistakes, flip around!
-	if(Math.random()<PD.NOISE) A.move = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
-	if(Math.random()<PD.NOISE) B.move = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(!(A.isAI) && Math.random()<PD.NOISE) A.move = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(!(B.isAI) && Math.random()<PD.NOISE) B.move = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
 	
 	// Get payoffs
 	var payoffs = PD.getPayoffs(A.move,B.move);
