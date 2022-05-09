@@ -433,3 +433,27 @@ function Logic_robinhood2(){
     }
   };
 }
+
+// GENERIC TEMPLATE FOR BUILDING NEW PLAYER LOGIC
+// this code, while uncommented, is never called in the program
+function Logic_template(){
+  var self = this;
+  var AI = false;
+  // other variables below
+  // ...
+
+  self.play = function(opponentCoins, agents){
+    // returns an object retObj = { move: someMove, isAI: someBool }
+    var retObj = {};
+    retObj.isAI = AI;
+
+    // determine move below and save as retObj.move; e.g. cooperate
+    retObj.move = PD.COOPERATE;
+
+    return retObj;
+  };
+  self.remember = function(own, other){
+    // space to modify object variables based on play
+    // no return values
+  };
+}
