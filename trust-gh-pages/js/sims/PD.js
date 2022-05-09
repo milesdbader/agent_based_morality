@@ -85,28 +85,28 @@ PD.playOneGame = function(playerA, playerB, agents){
 	var B = playerB.play(ACoins, agents);
 
 	// Noise: random mistakes, flip around!
-	if(Math.random()<PD.NOISE) A = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
-	if(Math.random()<PD.NOISE) B = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(Math.random()<PD.NOISE) A.move = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(Math.random()<PD.NOISE) B.move = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
 	
 	// Get payoffs
-	var payoffs = PD.getPayoffs(A,B);
+	var payoffs = PD.getPayoffs(A.move,B.move);
 
 	// Remember own & other's moves (or mistakes)
-	playerA.remember(A, B);
-	playerB.remember(B, A);
+	playerA.remember(A.move, B.move);
+	playerB.remember(B.move, A.move);
 	
 	var repChangeOnCoop = 1
 	var repChangeOnCheat = -2
 
 	// Change Reputation - we can change these values as we wish
-	if(B == PD.CHEAT){
+	if(B.move == PD.CHEAT){
 		playerB.changeRep(repChangeOnCheat);
-	} else if (B == PD.COOPERATE){
+	} else if (B.move == PD.COOPERATE){
 		playerB.changeRep(repChangeOnCoop);
 	}
-	  if(A == PD.CHEAT){
+	if(A.move == PD.CHEAT){
 		playerA.changeRep(repChangeOnCheat);
-	} else if (A == PD.COOPERATE){
+	} else if (A.move == PD.COOPERATE){
 		playerA.changeRep(repChangeOnCoop);
 	}
 
