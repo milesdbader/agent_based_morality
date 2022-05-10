@@ -85,33 +85,33 @@ PD.playOneGame = function(playerA, playerB, agents){
 	var B = playerB.play(ACoins, agents);
 
 	// Noise: random mistakes, flip around!
-	if(Math.random()<PD.NOISE) A = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
-	if(Math.random()<PD.NOISE) B = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(!(A.isAI) && Math.random()<PD.NOISE) A.move = ((A==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
+	if(!(B.isAI) && Math.random()<PD.NOISE) B.move = ((B==PD.COOPERATE) ? PD.CHEAT : PD.COOPERATE);
 	
 	// Get payoffs
-	var payoffs = PD.getPayoffs(A,B);
+	var payoffs = PD.getPayoffs(A.move,B.move);
 
 	// Remember own & other's moves (or mistakes)
-	playerA.remember(A, B);
-	playerB.remember(B, A);
+	playerA.remember(A.move, B.move);
+	playerB.remember(B.move, A.move);
 	
 	var repChangeOnCoop = 1
 	var repChangeOnCheat = -2
 
 	// Change Reputation - we can change these values as we wish
-	if(B == PD.CHEAT){
+	if(B.move == PD.CHEAT){
 		playerB.changeRep(repChangeOnCheat);
-	} else if (B == PD.COOPERATE){
+	} else if (B.move == PD.COOPERATE){
 		playerB.changeRep(repChangeOnCoop);
 	}
-	  if(A == PD.CHEAT){
+	if(A.move == PD.CHEAT){
 		playerA.changeRep(repChangeOnCheat);
-	} else if (A == PD.COOPERATE){
+	} else if (A.move == PD.COOPERATE){
 		playerA.changeRep(repChangeOnCoop);
 	}
 
   // wealth redistribution for RH character
-  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood is id'd as
+  // IMPORTANT: on below lines, "robinhood2" will need to change to match whatever robinhood2 is id'd as
   if(playerA.getStrategy() == "robinhood2" || playerB.getStrategy() == "robinhood2"){ // if someone is robinhood
     // console.log("here comes robinhood!");
 
@@ -142,6 +142,10 @@ PD.playOneGame = function(playerA, playerB, agents){
       payoffs[1] = 0;
     }
   }
+
+  // AI players are immune to negative punishment
+  if(A.isAI && payoffs[0] < 0) payoffs[0] = 0;
+  if(B.isAI && payoffs[1] < 0) payoffs[1] = 0;
 
 	// Add to scores (only in tournament?)
 	playerA.addPayoff(payoffs[0]);
@@ -212,9 +216,14 @@ PD.playOneTournament = function(agents, turns){
 //copycat
 function Logic_tft(){
 	var self = this;
+  var AI = false;
+
 	var otherMove = PD.COOPERATE;
 	self.play = function(opponentCoins, agents){
-		return otherMove;
+    var retObj = {};
+    retObj.isAI = AI;
+    retObj.move = otherMove
+		return retObj;
 	};
 	self.remember = function(own, other){
 		otherMove = other;
@@ -224,13 +233,19 @@ function Logic_tft(){
 //copykitten
 function Logic_tf2t(){
 	var self = this;
+  var AI = false;
+
 	var howManyTimesCheated = 0;
 	self.play = function(opponentCoins, agents){
+    var retObj = {};
+    retObj.isAI = AI;
+
 		if(howManyTimesCheated>=2){
-			return PD.CHEAT; // retaliate ONLY after two betrayals
+			retObj.move = PD.CHEAT; // retaliate ONLY after two betrayals
 		}else{
-			return PD.COOPERATE;
+			retObj.move = PD.COOPERATE;
 		}
+    return retObj;
 	};
 	self.remember = function(own, other){
 		if(other==PD.CHEAT){
@@ -243,10 +258,17 @@ function Logic_tf2t(){
 
 function Logic_grudge(){
 	var self = this;
+  var AI = false;
+
 	var everCheatedMe = false;
 	self.play = function(opponentCoins, agents){
-		if(everCheatedMe) return PD.CHEAT;
-		return PD.COOPERATE;
+    var retObj = {};
+    retObj.isAI = AI;
+
+		if(everCheatedMe) {retObj.move = PD.CHEAT;}
+		else {retObj.move = PD.COOPERATE;}
+
+    return retObj;
 	};
 	self.remember = function(own, other){
 		if(other==PD.CHEAT) everCheatedMe=true;
@@ -255,8 +277,13 @@ function Logic_grudge(){
 
 function Logic_all_d(){
 	var self = this;
+  var AI = false;
+
 	self.play = function(opponentCoins, agents){
-		return PD.CHEAT;
+    var retObj = {};
+    retObj.isAI = AI;
+    retObj.move = PD.CHEAT;
+		return retObj;
 	};
 	self.remember = function(own, other){
 		// nah
@@ -265,8 +292,13 @@ function Logic_all_d(){
 
 function Logic_all_c(){
 	var self = this;
+  var AI = false;
+
 	self.play = function(opponentCoins, agents){
-		return PD.COOPERATE;
+    var retObj = {};
+    retObj.isAI = AI;
+    retObj.move = PD.COOPERATE;
+    return retObj;
 	};
 	self.remember = function(own, other){
 		// nah
@@ -275,8 +307,13 @@ function Logic_all_c(){
 
 function Logic_random(){
 	var self = this;
+  var AI = false;
+
 	self.play = function(opponentCoins, agents){
-		return (Math.random()>0.5 ? PD.COOPERATE : PD.CHEAT);
+    var retObj = {};
+    retObj.isAI = AI;
+		retObj.move = Math.random()>0.5 ? PD.COOPERATE : PD.CHEAT;
+    return retObj;
 	};
 	self.remember = function(own, other){
 		// nah
@@ -287,9 +324,14 @@ function Logic_random(){
 // Then, if opponent cooperated, repeat past move. otherwise, switch.
 function Logic_pavlov(){
 	var self = this;
+  var AI = false;
+
 	var myLastMove = PD.COOPERATE;
 	self.play = function(opponentCoins, agents){
-		return myLastMove;
+    var retObj = {};
+    retObj.isAI = AI;
+		retObj.move = myLastMove;
+    return retObj;
 	};
 	self.remember = function(own, other){
 		myLastMove = own; // remember MISTAKEN move
@@ -301,25 +343,28 @@ function Logic_pavlov(){
 // If EVER retaliates, keep playing TFT
 // If NEVER retaliates, switch to ALWAYS DEFECT
 function Logic_prober(){
-
 	var self = this;
+  var AI = false;
 
 	var moves = [PD.COOPERATE, PD.CHEAT, PD.COOPERATE, PD.COOPERATE];
 	var everCheatedMe = false;
 
 	var otherMove = PD.COOPERATE;
 	self.play = function(opponentCoins, agents){
+    var retObj = {};
+    retObj.isAI = AI;
+
 		if(moves.length>0){
 			// Testing phase
-			var move = moves.shift();
-			return move;
+			retObj.move = moves.shift();
 		}else{
 			if(everCheatedMe){
-				return otherMove; // TFT
+				retObj.move = otherMove; // TFT
 			}else{
-				return PD.CHEAT; // Always Cheat
+				retObj.move = PD.CHEAT; // Always Cheat
 			}
 		}
+    return retObj;
 	};
 	self.remember = function(own, other){
 		if(moves.length>0){
@@ -333,9 +378,15 @@ function Logic_prober(){
 // ORIGINAL RH LOGIC (not hooked up to any current player)
 function Logic_robinhood(){
   var self = this;
+  var AI = false;
+
   self.play = function(opponentCoins, agents){
+    var retObj = {};
+    retObj.isAI = AI;
+
     var threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
-    return ((opponentCoins > threshold) ? PD.CHEAT : PD.COOPERATE);
+    retObj.move = (opponentCoins > threshold) ? PD.CHEAT : PD.COOPERATE;
+    return retObj;
   };
   self.remember = function(own, other){
     // nah
@@ -347,6 +398,8 @@ function Logic_robinhood(){
 // after cheating someone, wealth is redistributed among the poorest (unless RH is critically poor)
 function Logic_robinhood2(){
   var self = this;
+  var AI = false;
+
 
   var firstRound = true;
   var threshold = 0;
@@ -354,20 +407,27 @@ function Logic_robinhood2(){
   var howManyTimesCheated = 0;
 
   self.play = function(opponentCoins, agents){
+    var retObj = {};
+    retObj.isAI = AI;
+
     if(firstRound){
       threshold = PD.getAverageWelfare(agents) + PD.getSDWelfare(agents);
       oppIsRich = opponentCoins > threshold;
       firstRound = false;
     }
 
-    if(oppIsRich) { return PD.CHEAT; }
+    if(oppIsRich) {
+      retObj.move = PD.CHEAT
+      return retObj;
+    }
 
     // tf2t logic
     if(howManyTimesCheated>=2){
-      return PD.CHEAT; // retaliate ONLY after two betrayals
+      retObj.move = PD.CHEAT; // retaliate ONLY after two betrayals
     }else{
-      return PD.COOPERATE;
+      retObj.move = PD.COOPERATE;
     }
+    return retObj;
   };
   self.remember = function(own, other){
     if(other==PD.CHEAT){
@@ -375,5 +435,29 @@ function Logic_robinhood2(){
     }else{
       howManyTimesCheated = 0;
     }
+  };
+}
+
+// GENERIC TEMPLATE FOR BUILDING NEW PLAYER LOGIC
+// this code, while uncommented, is never called in the program
+function Logic_template(){
+  var self = this;
+  var AI = false;
+  // other variables below
+  // ...
+
+  self.play = function(opponentCoins, agents){
+    // returns an object retObj = { move: someMove, isAI: someBool }
+    var retObj = {};
+    retObj.isAI = AI;
+
+    // determine move below and save as retObj.move; e.g. cooperate
+    retObj.move = PD.COOPERATE;
+
+    return retObj;
+  };
+  self.remember = function(own, other){
+    // space to modify object variables based on play
+    // no return values
   };
 }
